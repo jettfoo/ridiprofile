@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Jett Foo · Country Brand Lead (I&I & RD) | Pfizer Singapore</title>
+    <!-- Google Fonts: Kinetic + Clean -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Pfizer Global Color Palette (from pfizer.com official brand) */
+        :root {
+            --pfizer-deep-blue: #004B87;
+            --pfizer-bright-blue: #0096D6;
+            --pfizer-light-blue: #6AC8FF;
+            --pfizer-sky-bg: #EFF5FA;
+            --pfizer-white: #FFFFFF;
+            --pfizer-warm-gray: #F4F7FB;
+            --pfizer-dark-text: #1A2C3E;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--pfizer-warm-gray);
+            color: var(--pfizer-dark-text);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* ---------- LOGIN OVERLAY (FULLSCREEN GATE) ---------- */
+        .login-gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 10% 30%, var(--pfizer-deep-blue), #002b4f);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .login-card {
+            background: var(--pfizer-white);
+            max-width: 480px;
+            width: 90%;
+            border-radius: 48px;
+            padding: 52px 36px 48px;
+            text-align: center;
+            box-shadow: 0 30px 50px rgba(0, 35, 70, 0.3);
+            border: 1px solid rgba(0,150,214,0.2);
+            animation: floatUp 0.6s ease-out;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-card h2 {
+            font-family: 'Anton', sans-serif;
+            font-size: 2rem;
+            color: var(--pfizer-deep-blue);
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            border: none;
+            padding: 0;
+        }
+
+        .login-card p {
+            color: #2C4C6E;
+            margin-bottom: 32px;
+            font-size: 0.95rem;
+        }
+
+        .password-container {
+            position: relative;
+            margin: 24px 0 16px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 16px 24px;
+            font-size: 1.1rem;
+            font-family: 'Inter', monospace;
+            border: 2px solid #DCE8F0;
+            border-radius: 60px;
+            background: var(--pfizer-white);
+            transition: all 0.2s;
+            outline: none;
+            font-weight: 500;
+            color: var(--pfizer-dark-text);
+            letter-spacing: 0.3px;
+        }
+
+        .password-input:focus {
+            border-color: var(--pfizer-bright-blue);
+            box-shadow: 0 0 0 3px rgba(0,150,214,0.2);
+        }
+
+        .toggle-pwd {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--pfizer-bright-blue);
+            font-weight: 600;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 40px;
+            transition: 0.1s;
+        }
+
+        .error-msg {
+            background: #FFEFEF;
+            color: #C7362B;
+            padding: 10px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin: 16px 0 10px;
+            display: inline-block;
+            width: auto;
+        }
+
+        .login-btn {
+            background: var(--pfizer-bright-blue);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-top: 12px;
+        }
+
+        .login-btn:hover {
+            background: var(--pfizer-deep-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,75,135,0.3);
+        }
+
+        .hint-text {
+            font-size: 0.75rem;
+            color: #5A7B9C;
+            margin-top: 24px;
+            border-top: 1px solid #E2EDF7;
+            padding-top: 20px;
+        }
+
+        /* MAIN WEBSITE CONTENT (initially hidden) */
+        .main-site {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease;
+        }
+
+        .main-site.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* rest of original styling */
+        h1, h2, h3, .kinetic-title, .achievement-title, .timeline-company {
+            font-family: 'Anton', sans-serif;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(3.5rem, 9vw, 6rem);
+            line-height: 0.92;
+            margin-bottom: 1.2rem;
+            color: var(--pfizer-deep-blue);
+        }
+
+        h2 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 2rem;
+            border-left: 6px solid var(--pfizer-bright-blue);
+            padding-left: 20px;
+            color: #0F2C3D;
+        }
+
+        .accent-text {
+            color: var(--pfizer-bright-blue);
+        }
+
+        .section {
+            padding: 80px 24px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: var(--pfizer-bright-blue);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 14px 36px;
+            border-radius: 40px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 10px rgba(0,150,214,0.2);
+            border: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: var(--pfizer-deep-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,75,135,0.2);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 40px 24px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 0.9fr;
+            gap: 60px;
+            align-items: center;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .hero-left .pre-title {
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--pfizer-bright-blue);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .hero-tagline {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin: 20px 0;
+            color: #2C4C6E;
+        }
+
+        .photo-frame {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            border-radius: 32px;
+            background: white;
+            box-shadow: 0 20px 35px -12px rgba(0,75,135,0.2);
+            overflow: hidden;
+            aspect-ratio: 1/1;
+            border: 3px solid white;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 28px;
+            margin-top: 40px;
+        }
+
+        .achievement-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            transition: transform 0.2s ease, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02), 0 2px 4px rgba(0,75,135,0.05);
+            border: 1px solid #E2EDF7;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .achievement-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 25px 30px -12px rgba(0,150,214,0.2);
+            border-color: var(--pfizer-light-blue);
+        }
+
+        .achievement-year {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--pfizer-bright-blue);
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .achievement-title {
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            color: var(--pfizer-deep-blue);
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 32px;
+            margin-bottom: 48px;
+            background: white;
+            padding: 20px 28px;
+            border-radius: 28px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.02);
+            border: 1px solid #EAF2F9;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-date {
+            font-weight: 800;
+            color: var(--pfizer-bright-blue);
+            font-size: 1.1rem;
+        }
+
+        .timeline-company {
+            font-size: 1.7rem;
+            color: #0F2C3D;
+            margin-bottom: 8px;
+        }
+
+        .timeline-role {
+            font-weight: 600;
+            color: #4B6F8E;
+            margin-bottom: 16px;
+        }
+
+        .timeline-bullets {
+            list-style: none;
+        }
+
+        .timeline-bullets li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .timeline-bullets li::before {
+            content: "▹";
+            color: var(--pfizer-bright-blue);
+            position: absolute;
+            left: 0;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .skill-tag {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--pfizer-deep-blue);
+            border: 1px solid var(--pfizer-light-blue);
+            transition: all 0.2s;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: popTags 0.4s forwards;
+        }
+
+        @keyframes popTags {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .kinetic-section {
+            text-align: center;
+            padding: 70px 20px;
+            background: white;
+            margin: 30px 0;
+            border-radius: 48px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .kinetic-title {
+            font-size: clamp(2.6rem, 7vw, 4.8rem);
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .word-pop {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(35px);
+            animation: kineticFloat 0.6s forwards;
+        }
+
+        @keyframes kineticFloat {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ridi-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 240px;
+            height: 240px;
+            border-radius: 84px;
+            transition: all 0.3s;
+            position: relative;
+            animation: flashRidi 1.2s infinite ease-in-out;
+        }
+        .ridi-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 84px;
+        }
+        .ridi-logo.fallback-text {
+            background: linear-gradient(135deg, var(--pfizer-bright-blue) 0%, var(--pfizer-deep-blue) 100%);
+            color: white;
+            font-family: 'Anton', sans-serif;
+            font-size: 7.2rem;
+            letter-spacing: 6px;
+            box-shadow: 0 10px 20px rgba(0,75,135,0.25);
+        }
+        .ridi-logo.fallback-text::after {
+            content: "❤️";
+            position: absolute;
+            font-size: 3.6rem;
+            bottom: -24px;
+            right: -24px;
+            background: white;
+            border-radius: 50%;
+            width: 72px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        @keyframes flashRidi {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.02); text-shadow: 0 0 15px rgba(0,150,214,0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .ridi-small {
+            width: 180px;
+            height: 180px;
+        }
+        .ridi-small.fallback-text {
+            font-size: 5.4rem;
+        }
+        .ridi-small.fallback-text::after {
+            font-size: 2.7rem;
+            width: 54px;
+            height: 54px;
+            bottom: -18px;
+            right: -18px;
+        }
+
+        .music-floating {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 360px;
+            max-width: calc(100vw - 48px);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            box-shadow: 0 20px 35px rgba(0, 75, 135, 0.2);
+            z-index: 1000;
+            border: 1px solid rgba(0,150,214,0.4);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: var(--pfizer-bright-blue);
+            color: white;
+            border-radius: 28px 28px 0 0;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .player-content {
+            max-height: 420px;
+            overflow-y: auto;
+            padding: 12px;
+            display: none;
+        }
+
+        .player-content.open {
+            display: block;
+        }
+
+        .track-item iframe {
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        .spotify-reminder {
+            background: #FEF7E0;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            text-align: center;
+            margin: 8px 0;
+            color: #A17400;
+        }
+
+        .contact-section {
+            text-align: center;
+            background: white;
+            border-radius: 48px;
+            padding: 60px 24px;
+            margin-top: 40px;
+        }
+
+        .flashing-contact {
+            animation: subtleFlash 1.2s infinite;
+            font-weight: 700;
+        }
+
+        @keyframes subtleFlash {
+            0% { opacity: 1; text-shadow: 0 0 0px var(--pfizer-bright-blue);}
+            50% { opacity: 0.7; text-shadow: 0 0 3px var(--pfizer-bright-blue);}
+            100% { opacity: 1;}
+        }
+
+        footer {
+            text-align: center;
+            padding: 32px;
+            color: #5A7B9C;
+            font-size: 0.8rem;
+            border-top: 1px solid #DCE8F0;
+        }
+
+        .summary-highlight {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F0F7FE 100%);
+            border-radius: 32px;
+            padding: 40px 36px;
+            margin: 40px 24px;
+            border: 1px solid rgba(0,150,214,0.25);
+            scroll-margin-top: 80px;
+        }
+
+        .core-competencies-wrapper {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .timeline-item {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .music-floating {
+                width: 280px;
+            }
+            .ridi-logo {
+                width: 180px;
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN GATE (Password = ridi, case-insensitive, no pfizer logo, no explicit ridi text) -->
+<div id="loginGate" class="login-gate">
+    <div class="login-card">
+        <h2>🔐 Secure Access</h2>
+        <p>Executive preview · Please enter the access password</p>
+        <div class="password-container">
+            <input type="password" id="passwordInput" class="password-input" placeholder="Enter password" autocomplete="off" autofocus>
+            <button type="button" id="togglePwdVisibility" class="toggle-pwd">👁️</button>
+        </div>
+        <div id="loginError" class="error-msg" style="display: none;">❌ Wrong password. Please try again.</div>
+        <button id="loginSubmitBtn" class="login-btn">↳ UNLOCK EXPERIENCE</button>
+        <div class="hint-text">🔐 Hint: password is not case sensitive.</div>
+    </div>
+</div>
+
+<!-- MAIN WEBSITE CONTENT -->
+<div id="mainSite" class="main-site">
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-grid">
+            <div class="hero-left">
+                <div class="pre-title">Pfizer · Country Brand Lead (Candidate)</div>
+                <h1>JETT<br>FOO</h1>
+                <div class="hero-tagline">Immunology & Inflammation | Rare Disease</div>
+                <p style="margin: 24px 0; color: #2C4C6E;">20+ years turning complex science into patient access – Singapore focused. Pre‑NDA market access architect, launch leader, and patient advocate.</p>
+                <div style="margin-top: 30px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center; justify-content: flex-start;">
+                    <div class="ridi-logo" id="ridiLogoHero">
+                        <img src="https://github.com/jettfoo/ridi/raw/main/RIDI%20png%20file.png" alt="RIDI Logo" style="width:100%; height:100%; object-fit:contain;" onerror="this.parentElement.classList.add('fallback-text'); this.style.display='none'; this.parentElement.innerText='RIDI';">
+                    </div>
+                    <span style="font-size: 0.95rem; color:#004B87; align-self:center; font-weight:500;"><strong>RIDI</strong> = Ready · RD + I&I fusion</span>
+                </div>
+            </div>
+            <div>
+                <div class="photo-frame">
+                    <img src="https://i.ibb.co/CKPdPynv/jett-50.png" alt="Jett Foo" oncontextmenu="return false" draggable="false">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY SECTION -->
+    <div id="summarySection" class="summary-highlight">
+        <div style="display: flex; align-items: center; gap: 30px; flex-wrap: wrap; margin-bottom: 30px;">
+            <div class="ridi-logo" id="ridiLogoSummary">
+                <img src="https://github.com/jettfoo/ridi/raw/main/RIDI%20png%20file.png" alt="RIDI Logo" style="width:100%; height:100%; object-fit:contain;" onerror="this.parentElement.classList.add('fallback-text'); this.style.display='none'; this.parentElement.innerText='RIDI';">
+            </div>
+            <h2 style="border-left: none; margin-bottom: 0;">Profile Snapshot</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+            <div><strong style="color: var(--pfizer-deep-blue);">🏆 Key Achievement</strong><br>Galafold RDF listing before NDA submission (Singapore, Feb 2025) – precedent‑setting market access.</div>
+            <div><strong style="color: var(--pfizer-deep-blue);">🚀 Launches</strong><br>Vyndamax #1 in APAC (excl. Japan/China) · Soliris 5x growth in Singapore.</div>
+            <div><strong style="color: var(--pfizer-deep-blue);">🛡️ Market Access</strong><br>MAF listings for Rapamune & Genotropin · ACE engagement · patient assistance programs.</div>
+            <div><strong style="color: var(--pfizer-deep-blue);">🗣️ Languages</strong><br>English, Mandarin, Hainanese, Hokkien, Cantonese – deep KOL & government liaison.</div>
+            <div><strong style="color: var(--pfizer-deep-blue);">🔗 Connect</strong><br><a href="https://www.linkedin.com/in/jettfoo" target="_blank" style="color:#0096D6;">linkedin.com/in/jettfoo</a> · 20+ years commercial leadership in Singapore.</div>
+        </div>
+    </div>
+
+    <!-- KINETIC SECTION -->
+    <div class="section">
+        <div class="kinetic-section" style="background: linear-gradient(120deg, #EFF5FA, white);">
+            <div class="kinetic-title">
+                <span class="word-pop" style="animation-delay:0s">RARE</span>
+                <span class="word-pop" style="animation-delay:0.1s">DISEASE</span>
+                <span class="word-pop" style="animation-delay:0.2s">·</span>
+                <span class="word-pop" style="animation-delay:0.3s">IMMUNOLOGY</span>
+                <span class="word-pop" style="animation-delay:0.4s">·</span>
+                <span class="word-pop" style="animation-delay:0.5s">IMPACT</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KEY ACHIEVEMENTS -->
+    <div class="section">
+        <h2>KEY ACHIEVEMENTS</h2>
+        <div class="achievements-grid" id="achievementsGrid">
+            <div class="achievement-card"><div class="achievement-year">Feb 2025</div><div class="achievement-title">Galafold RDF Listing</div><div class="achievement-desc">Rare Disease Fund listing in Singapore <strong>before NDA submission</strong> – direct ACE negotiation, accelerated patient access by ~12 months.</div></div>
+            <div class="achievement-card"><div class="achievement-year">2020–2022</div><div class="achievement-title">Vyndamax #1 APAC</div><div class="achievement-desc">Launched Vyndamax → #1 in-market sales APAC (excl. Japan/China) and #1 ATU ranking for 3 consecutive years.</div></div>
+            <div class="achievement-card"><div class="achievement-year">2020</div><div class="achievement-title">Pfizer Global Excellence</div><div class="achievement-desc">Led Singapore Rare Disease team to Honourable Mention – top 7 winners out of 267 global submissions.</div></div>
+            <div class="achievement-card"><div class="achievement-year">2014–2017</div><div class="achievement-title">Soliris 5x Growth</div><div class="achievement-desc">Increased Singapore sales from 22 to 120 vials; secured government funding pathways for PNH/aHUS.</div></div>
+            <div class="achievement-card"><div class="achievement-year">2020–2022</div><div class="achievement-title">MAF Listings (Singapore)</div><div class="achievement-desc">Secured Medication Assistance Fund listing for Rapamune (2020) and Genotropin (2022).</div></div>
+            <div class="achievement-card"><div class="achievement-year">2011–2013</div><div class="achievement-title">Tepadina Turnaround</div><div class="achievement-desc">Grew oncology drug sales from SGD50k → SGD800k in 2 years (16x increase).</div></div>
+            <div class="achievement-card"><div class="achievement-year">2023–2025</div><div class="achievement-title">AI‑guided SKU Tool</div><div class="achievement-desc">Led cross-functional team to deploy an AI-assisted reference tool (vitalhealth168.github.io/T400_SG) in days, reducing dosing errors pre‑launch.</div></div>
+        </div>
+    </div>
+
+    <!-- PROFESSIONAL INTRODUCTION -->
+    <div class="section" style="background: white; border-radius: 48px; margin: 20px auto;">
+        <div style="max-width: 900px; margin: 0 auto; text-align: center; padding: 20px;">
+            <div class="ridi-logo" style="margin-bottom: 30px; margin-left: auto; margin-right: auto;" id="ridiLogoDrive">
+                <img src="https://github.com/jettfoo/ridi/raw/main/RIDI%20png%20file.png" alt="RIDI Logo" style="width:100%; height:100%; object-fit:contain;" onerror="this.parentElement.classList.add('fallback-text'); this.style.display='none'; this.parentElement.innerText='RIDI';">
+            </div>
+            <h2 style="border-left: none; text-align:center;">MY DRIVE</h2>
+            <p style="font-size: 1.2rem; line-height: 1.5; color:#1F3B4C;">“Over 20+ years in pharmaceutical commercial leadership, I’ve focused on Singapore’s unique healthcare ecosystem to turn complex science into tangible patient access — from pre-NDA Rare Disease Fund listings to #1 launch performances. At Pfizer, I owned Vyndamax P&L and spearheaded omnichannel campaigns. At AxxessBio, I built an AI-guided tool to resolve HCP SKU mixing within days. My approach combines pragmatic foresight, cross-functional orchestration, and deep respect for local stakeholders. Fluent in Mandarin and dialects, I partner with KOLs, policymakers, and patient groups to shape markets before they mature. I’m ready to bring this rare disease + immunology toolkit back to Pfizer as Country Brand Lead (I&I & RD) in Singapore.”</p>
+            <p style="margin-top: 24px; font-weight: 600;">— Jett Foo</p>
+        </div>
+    </div>
+
+    <!-- EXPERIENCE TIMELINE -->
+    <div class="section">
+        <h2>LEADERSHIP IN ACTION</h2>
+        <div class="timeline-item"><div class="timeline-date">2023 – Present</div><div><div class="timeline-company">AxxessBio</div><div class="timeline-role">Senior Commercial & Alliance Lead (Asia)</div><ul class="timeline-bullets"><li>Secured Galafold RDF listing before NDA (Feb 2025) – direct ACE negotiation in Singapore</li><li>Built AI reference tool (vitalhealth168.github.io/T400_SG) solving HCP SKU mixing, accelerated adoption</li><li>Private insurance coverage for Remodulin/Tyvaso in Singapore; supported local tender processes</li></ul></div></div>
+        <div class="timeline-item"><div class="timeline-date">2019 – 2023</div><div><div class="timeline-company">Pfizer</div><div class="timeline-role">Country Brand Lead (Rare Disease)</div><ul class="timeline-bullets"><li>Owned Vyndamax P&L → #1 in APAC (ex Japan/China), #1 ATU ranking 3 years</li><li>Led omnichannel campaigns integrating digital patient education & traditional detailing</li><li>MAF listings: Rapamune (2020), Genotropin (2022) & gene therapy MoUs with SGH, NUH, SDGMC</li><li>Pfizer Global Commercial Excellence Honourable Mention (top 7/267)</li></ul></div></div>
+        <div class="timeline-item"><div class="timeline-date">2016 – 2019</div><div><div class="timeline-company">Alexion Pharmaceuticals</div><div class="timeline-role">Regional Business Development Manager</div><ul class="timeline-bullets"><li>Soliris sales growth in Singapore: 22 → 120 vials</li><li>Clinical trial liaison for ALXN1210 (ULTOMIRIS®) Phase 3 in Singapore</li><li>Enhanced diagnostic capabilities (FLAER, ADAMTS13) for PNH and aHUS at local institutions</li></ul></div></div>
+        <div class="timeline-item"><div class="timeline-date">2011 – 2016</div><div><div class="timeline-company">AxxessBio (Start-up)</div><div class="timeline-role">Regional Sales & Marketing Manager</div><ul class="timeline-bullets"><li>Tepadina growth SGD50k → SGD800k in 2 years</li><li>Caphosol inclusion in adult HSCT protocols (Parkway Cancer Centre, NUH)</li><li>Established patient assistance frameworks in Singapore</li></ul></div></div>
+    </div>
+
+    <div class="kinetic-section" style="background: var(--pfizer-sky-bg); margin: 0 24px 40px 24px;">
+        <div class="kinetic-title">
+            <span class="word-pop" style="animation-delay:0s">PATIENTS</span>
+            <span class="word-pop" style="animation-delay:0.1s">FIRST,</span>
+            <span class="word-pop" style="animation-delay:0.2s">SCIENCE</span>
+            <span class="word-pop" style="animation-delay:0.3s">DRIVEN,</span>
+            <span class="word-pop" style="animation-delay:0.4s">SINGAPORE</span>
+            <span class="word-pop" style="animation-delay:0.5s">FOCUSED.</span>
+        </div>
+    </div>
+
+    <div class="section" style="background: white; border-radius: 48px;">
+        <h2>CORE COMPETENCIES</h2>
+        <div class="skills-container">
+            <span class="skill-tag" style="animation-delay:0s">I&I / RD Brand Strategy</span>
+            <span class="skill-tag" style="animation-delay:0.05s">Launch Excellence</span>
+            <span class="skill-tag" style="animation-delay:0.1s">Market Access (ACE/MAF/RDF)</span>
+            <span class="skill-tag" style="animation-delay:0.15s">Omnichannel Marketing</span>
+            <span class="skill-tag" style="animation-delay:0.2s">KOL & Patient Advocacy</span>
+            <span class="skill-tag" style="animation-delay:0.25s">Cross-functional Leadership</span>
+            <span class="skill-tag" style="animation-delay:0.3s">Power BI & Data Analytics</span>
+            <span class="skill-tag" style="animation-delay:0.35s">P&L Ownership</span>
+            <span class="skill-tag" style="animation-delay:0.4s">Pragmatic Foresight</span>
+            <span class="skill-tag" style="animation-delay:0.45s">Fluency (Mandarin/Dialects)</span>
+        </div>
+        <div class="core-competencies-wrapper">
+            <a href="#summarySection" class="btn-primary">📄 View my summary →</a>
+        </div>
+    </div>
+
+    <div id="contact" class="section contact-section">
+        <h2 style="border-left: none;">Ready for the <span class="accent-text">Pfizer</span> I&I & RD Role</h2>
+        <p style="margin-bottom: 28px; font-size: 1.1rem;">Let’s discuss how my rare disease & immunology leadership drives patient value in Singapore.</p>
+        <a href="mailto:jett.foo@gmail.com" class="btn-primary" style="background: var(--pfizer-deep-blue);">✉️ jett.foo@gmail.com</a>
+        <p style="margin: 20px 0;"><a href="tel:+6598007324" class="flashing-contact" style="color: var(--pfizer-bright-blue); text-decoration: none; font-size: 1.6rem; font-weight: 700;">+65 9800 7324</a></p>
+        <p><a href="https://www.linkedin.com/in/jettfoo" target="_blank" style="color: var(--pfizer-deep-blue); font-weight: 600; border-bottom: 2px solid var(--pfizer-light-blue);">🔗 LinkedIn Profile →</a></p>
+        <div style="margin-top: 40px;">
+            <div class="ridi-logo ridi-small" style="margin: 0 auto;" id="ridiLogoContact">
+                <img src="https://github.com/jettfoo/ridi/raw/main/RIDI%20png%20file.png" alt="RIDI Logo" style="width:100%; height:100%; object-fit:contain;" onerror="this.parentElement.classList.add('fallback-text'); this.style.display='none'; this.parentElement.innerText='RIDI';">
+            </div>
+            <p style="font-size: 0.9rem; margin-top: 20px;">RIDI = Ready to engage · RD + I&I synergy</p>
+        </div>
+    </div>
+
+    <div class="music-floating" id="musicWidget">
+        <div class="player-header" onclick="toggleMusicPanel()">
+            <span>🎧 Background · 9 tracks (Spotify)</span>
+            <span id="toggleMusicIcon">▼</span>
+        </div>
+        <div class="player-content" id="musicPanel">
+            <div class="spotify-reminder">✨ Jett has specially arranged for you to enjoy music while viewing his webpage. ✨<br>⚡ Log into your Spotify account to play tracks. Click ▶ on any track — for sequential listening, create a playlist from these songs or play one after another.</div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/3xkHsmpQCBMytMJNiDf3Ii" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/0HqZX76SFLDz2aW8aiqi7G" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/3vIkVVbhpMvsOJ1BKWT0nT" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/1CPZ5BxNNd0n0nF4Orb9JS" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/5H1sKFMzDeMtXwND3V6hRY" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/5sNESr6pQfIhL3krM8CtZn" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/7z2M7DsEjZjwXBkWG3zd21" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/1xmODllGSYIPFsZMDUx0sN" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="track-item"><iframe src="https://open.spotify.com/embed/track/70LcF31zb1H0PyJoS1Sx1r" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+            <div class="spotify-reminder" style="background: #E6F2FA;">▶ To enjoy back‑to‑back, log into Spotify Premium and click play on the first track; then manually play next track or create your own playlist. 🔁</div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 Jett Foo — Country Brand Lead (Singapore) | Immunology & Inflammation · Rare Disease<br>Purpose-built for Pfizer’s I&I & RD leadership conversation.
+    </footer>
+</div>
+
+<script>
+    // Login logic: password = "ridi" (case-insensitive)
+    const loginGate = document.getElementById('loginGate');
+    const mainSite = document.getElementById('mainSite');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginBtn = document.getElementById('loginSubmitBtn');
+    const errorDiv = document.getElementById('loginError');
+    const togglePwdBtn = document.getElementById('togglePwdVisibility');
+
+    function validateAndUnlock() {
+        const enteredPassword = passwordInput.value.trim();
+        if (enteredPassword.length === 0) {
+            errorDiv.style.display = 'block';
+            errorDiv.innerText = '❌ Please enter the password.';
+            return;
+        }
+        // case-insensitive check
+        if (enteredPassword.toLowerCase() === 'ridi') {
+            // correct password: hide gate, show main site
+            loginGate.style.opacity = '0';
+            setTimeout(() => {
+                loginGate.style.display = 'none';
+                mainSite.classList.add('visible');
+                document.body.style.overflow = '';
+                // Trigger kinetic word animations after site becomes visible
+                document.querySelectorAll('.word-pop').forEach((el, idx) => {
+                    if(!el.style.animation) el.style.animation = `kineticFloat 0.5s forwards ${idx * 0.05}s`;
+                });
+                // trigger observer for cards/timeline after display
+                const animElements = document.querySelectorAll('.achievement-card, .timeline-item');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.2 });
+                animElements.forEach(el => observer.observe(el));
+            }, 300);
+        } else {
+            errorDiv.style.display = 'block';
+            errorDiv.innerText = '❌ Wrong password. Please try again.';
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+    }
+
+    // Enter key support
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            validateAndUnlock();
+        }
+    });
+    loginBtn.addEventListener('click', validateAndUnlock);
+
+    // Toggle password visibility (show plaintext as user types)
+    togglePwdBtn.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        togglePwdBtn.textContent = type === 'password' ? '👁️' : '🙈';
+    });
+
+    // prevent scrolling while login is active
+    document.body.style.overflow = 'hidden';
+
+    // music panel toggle
+    window.toggleMusicPanel = function() {
+        const panel = document.getElementById('musicPanel');
+        const icon = document.getElementById('toggleMusicIcon');
+        if (panel.style.display === 'none' || panel.style.display === '') {
+            panel.style.display = 'block';
+            panel.classList.add('open');
+            icon.innerHTML = '▲';
+        } else {
+            panel.style.display = 'none';
+            panel.classList.remove('open');
+            icon.innerHTML = '▼';
+        }
+    };
+    document.getElementById('musicPanel').style.display = 'none';
+    passwordInput.focus();
+</script>
+</body>
+</html>
